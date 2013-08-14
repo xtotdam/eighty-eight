@@ -42,15 +42,70 @@ int print()
     return 0;
 }
 
+int fall()
+{
+    int fall[8] = {0};
+    int fallen = 0;
+    int temp = 0;
+    do
+    {
+        fallen = 0;
+        for (j = 0; j < 8; j++)
+        {
+            for (i = 0; i < 8 - 1; i++)
+            {
+                if ((field[i + 1][j] % 10 == 0) && (field[i][j] % 10 != 0))
+                {
+                    temp = field[i + 1][j];
+                    field[i + 1][j] = field[i][j];
+                    field[i][j] = temp;
+
+                    fall[j] = 1;
+                }
+            }
+        }
+        for (i = 0; i < 8; i++)
+        {
+            fallen += fall[i];
+            printf("%d ", fall[i]);
+            fall[i] = 0;
+        }
+        printf(": %d \n", fallen);
+    }
+    while (fallen != 0);
+    return 0;
+}
+
 int main(int argc, char const *argv[])
 {
+    // for (i = 0; i < 8; i++)
+    // {
+    //     for (j = 0; j < 8; j++)
+    //     {
+    //         field[i][j] = 10 * i + j;
+    //     }
+    // }
+    // print();
+    // printf("\n\n");
+
     for (i = 0; i < 8; i++)
     {
-        field[4][i] = 9;
-        field[5][i] = 21 + i;
-        field[6][i] = 11 + i;
-        field[7][i] = 1 + i;
+        // field[4][i] = 9;
+        // field[5][i] = 21 + i;
+        // field[6][i] = 11 + i;
+        //field[7][i] = 1 + i;
     }
+    field[1][1] = 11;
+    field[3][1] = 12;
+    field[4][2] = 13;
+    field[0][4] = 14;
+    field[2][4] = 14;
+    field[4][4] = 14;
+    field[6][4] = 14;
     print();
+    fall();
+    print();
+
+
     return 0;
 }
