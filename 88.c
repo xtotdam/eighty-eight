@@ -12,9 +12,14 @@ int print()
     {
         for (j = 0; j < 8; j++)
         {
+            if (field[i][j] == 19)
+            {
+                field[i][j] = 9;    //because no bombs are greyed
+            }
+
             state = field[i][j] / 10;
             number = field[i][j] % 10;
-            printf("%2d %2d", state, number);  //debug
+            printf("%2d %2d", state, number);   //debug
             if ((state == 0) && (number > 0) && (number < 9))
             {
                 printf("\e[01;38;05;%dm[%d]\e[0m", 20 * (field[i][j] % 10 + 3), field[i][j] % 10);
@@ -67,43 +72,34 @@ int fall()
         for (i = 0; i < 8; i++)
         {
             fallen += fall[i];
-            printf("%d ", fall[i]);
+            printf("%d ", fall[i]);   //falling debug
             fall[i] = 0;
         }
-        printf(": %d \n", fallen);
+        printf(": %d \n", fallen);    //falling debug
     }
     while (fallen != 0);
     return 0;
 }
 
-int main(int argc, char const *argv[])
+int init()
 {
-    // for (i = 0; i < 8; i++)
-    // {
-    //     for (j = 0; j < 8; j++)
-    //     {
-    //         field[i][j] = 10 * i + j;
-    //     }
-    // }
-    // print();
-    // printf("\n\n");
-
-    for (i = 0; i < 8; i++)
+    int seed = 1;
+    printf("Enter integer seed for random generator :   ");
+    scanf("%d", &seed);
+    printf("\n\n");
+    srand(seed);
+    for (i = 0; i < 16; i++)
     {
-        // field[4][i] = 9;
-        // field[5][i] = 21 + i;
-        // field[6][i] = 11 + i;
-        //field[7][i] = 1 + i;
+        field[rand() % 8][rand() % 8] = 20 * (rand() % 2) + rand() % 9 + 1;
     }
-    field[1][1] = 11;
-    field[3][1] = 12;
-    field[4][2] = 13;
-    field[0][4] = 14;
-    field[2][4] = 14;
-    field[4][4] = 14;
-    field[6][4] = 14;
     print();
     fall();
+    return 0;
+}
+
+int main(int argc, char const *argv[])
+{
+    init();
     print();
 
 
