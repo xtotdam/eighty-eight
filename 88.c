@@ -18,36 +18,57 @@ int print()
         {
             if (field[i][j] == 19)
             {
-                field[i][j] = 9;    //because no bombs can be greyed
+                field[i][j] = 9;    //because no bombs can be grey
             }
 
             state = field[i][j] / 10;
             number = field[i][j] % 10;
             printf("%2d %2d", state, number);   //debug
-            if ((state == 0) && (number > 0) && (number < 9))
+
+            if      ((state == 1))  printf("\e[01;38;05;242m[%d]\e[0m", number);
+            else if ((state == 2))  printf("\e[01;38;05;242m[*]\e[0m");
+            else if ((state == 0))
             {
-                printf("\e[01;38;05;%dm[%d]\e[0m", 20 * (number + 3), number);
-            }
-            else if ((number == 9))
-            {
-                printf("\e[01;38;05;242m[@]\e[0m");
-            }
-            else if ((state == 1))
-            {
-                printf("\e[01;38;05;242m[%d]\e[0m", number);
-            }
-            else if ((state == 2))
-            {
-                printf("\e[01;38;05;242m[*]\e[0m");
-            }
-            else
-            {
-                printf("[ ]");
+                switch (number)
+                {
+                case 0: printf("[ ]"); break;
+                case 1: printf("\e[01;38;05;80m[1]\e[0m"); break;
+                case 2: printf("\e[01;38;05;100m[2]\e[0m"); break;
+                case 3: printf("\e[01;38;05;120m[3]\e[0m"); break;
+                case 4: printf("\e[01;38;05;140m[4]\e[0m"); break;
+                case 5: printf("\e[01;38;05;160m[5]\e[0m"); break;
+                case 6: printf("\e[01;38;05;180m[6]\e[0m"); break;
+                case 7: printf("\e[01;38;05;200m[7]\e[0m"); break;
+                case 8: printf("\e[01;38;05;220m[8]\e[0m"); break;
+                case 9: printf("\e[01;38;05;240m[@]\e[0m"); break;  //bomb
+                default: printf("XXX"); break;
+                }
             }
         }
         if (i == 1)
         {
-            printf("\tNext : %d", next);
+            printf("\tNext : ");
+            state = next / 10;
+            number = next % 10;
+            printf("%2d %2d", state, number);   //debug
+
+            if      ((state == 2))  printf("\e[01;38;05;242m[*]\e[0m");
+            else if ((state == 0))
+            {
+                switch (number)
+                {
+                case 1: printf("\e[01;38;05;80m[1]\e[0m"); break;
+                case 2: printf("\e[01;38;05;100m[2]\e[0m"); break;
+                case 3: printf("\e[01;38;05;120m[3]\e[0m"); break;
+                case 4: printf("\e[01;38;05;140m[4]\e[0m"); break;
+                case 5: printf("\e[01;38;05;160m[5]\e[0m"); break;
+                case 6: printf("\e[01;38;05;180m[6]\e[0m"); break;
+                case 7: printf("\e[01;38;05;200m[7]\e[0m"); break;
+                case 8: printf("\e[01;38;05;220m[8]\e[0m"); break;
+                case 9: printf("\e[01;38;05;240m[@]\e[0m"); break;  //bomb
+                default: printf("XXX"); break;
+                }
+            }
         }
         else if (i == 4)
         {
