@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "time.h"
 
 int i, j;
 int field[8][8] = {0};
@@ -11,6 +12,34 @@ int gameover = 0;
 int state, number;
 int tobechecked = 0;
 
+int print();
+int fall();
+int init();
+int check();
+int destroy();
+
+int main()
+{
+    int place = 0;
+
+    //TODO: logging as console argument?
+    init();
+    while (gameover != 1)
+    {
+        next = 20 * (rand() % 2) + rand() % 9 + 1;
+        if (next == 19) next = 9;
+        print();
+        do
+        {
+            scanf("%d", &place);
+        }
+        while ((place < 0) && (place > 9));
+        field[0][place - 1] = next;
+        check();
+    }
+    return 0;
+}
+
 int print()
 {
     for (i = 0; i < 8; i++)
@@ -18,11 +47,6 @@ int print()
         printf(" %d | ", i);
         for (j = 0; j < 8; j++)
         {
-            if (field[i][j] == 19)
-            {
-                field[i][j] = 9;    //because no bombs can be grey
-            }
-
             state = field[i][j] / 10;
             number = field[i][j] % 10;
             printf("%2d %2d", state, number);   //debug
@@ -72,10 +96,7 @@ int print()
                 }
             }
         }
-        else if (i == 4)
-        {
-            printf("\tScore : %d", score);
-        }
+        else if (i == 4) printf("\tScore : %d", score);
         printf("\n");
     }
     printf("   |\n");
@@ -94,7 +115,7 @@ int fall()
     int temp = 0;
     do
     {
-        printf("Falling...  ");
+        printf("\e[01;38;05;107mF\e[0malling...  ");
         fallen = 0;
         for (j = 0; j < 8; j++)
         {
@@ -125,30 +146,32 @@ int fall()
 int init()
 {
     int seed = 1;
-    // printf("Enter integer seed for random generator :   ");
-    // scanf("%d", &seed);
-    // printf("\n\n");
+    //TODO: seed as console argument
+    seed = time(NULL);
     srand(seed);
+    printf("seed:  %d\n", seed);
+
     for (i = 0; i < 20; i++)
     {
         field[rand() % 8][rand() % 8] = 20 * (rand() % 2) + rand() % 9 + 1;
     }
-    //print();  //debug
-    fall();
+    check();
     return 0;
 }
 
-int destroy();
 int check()
 {
     int up, right, down, left;
     int hor, ver;
     int k;
 
+    fall();
     for (i = 0; i < 8; i++)
     {
         for (j = 0; j < 8; j++)
         {
+            if (field[i][j] == 19) field[i][j] = 9;    //because no bombs can be grey
+
             state  = field[i][j] / 10;
             number = field[i][j] % 10;
             up = 0; right = 0; down = 0; left = 0;
@@ -156,7 +179,7 @@ int check()
             if ((field[i][j] != 0) && (state == 0) && (number != 0) && (number != 9))
             {
                 up = 0; right = 0; down = 0; left = 0;
-                printf("Checking... %d%d [%d] ", i, j, number);
+                printf("\e[01;38;05;222mC\e[0mhecking... %d%d [%d] ", i, j, number);
                 for (k = i - 1; k > (-1); k--)
                 {
                     if (field[k][j] == 0) break;
@@ -201,38 +224,12 @@ int destroy()
             {
                 if ((field[i][j] == horb[i][j]) || (field[i][j] == verb[i][j]))
                 {
-                    printf("destroy... %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
+                    printf("\e[01;38;05;196mD\e[0mestroy...  %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
                     field[i][j] = 0;
                     fnc = 1;
                 }
             }
         }
     }
-    if (fnc == 1)
-    {
-        fall();
-        check();
-    }
-}
-
-int main()
-{
-    int place = 0;
-
-    init();
-    while (gameover != 1)
-    {
-        next = 20 * (rand() % 2) + rand() % 9 + 1;
-        if (next == 19) next = 9;
-        print();
-        do
-        {
-            scanf("%d", &place);
-        }
-        while ((place < 0) && (place > 9));
-        field[0][place - 1] = next;
-        fall();
-        check();
-    }
-    return 0;
+    if (fnc == 1) check();
 }
