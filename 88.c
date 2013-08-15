@@ -3,10 +3,13 @@
 
 int i, j;
 int field[8][8] = {0};
+int horb[8][8] = {0};
+int verb[8][8] = {0};
 int score = 0;
 int next = 0;
 int gameover = 0;
 int state, number;
+int tobechecked = 0;
 
 int print()
 {
@@ -135,6 +138,7 @@ int init()
     return 0;
 }
 
+int destroy();
 int check()
 {
     int up, right, down, left;
@@ -174,13 +178,41 @@ int check()
                     left++;
                 }
                 printf(": %du %dr %dd %dl ", up, right, down, left);
-                hor = right + left + 1;
-                ver = up + down + 1;
-                printf("| %dh %dv\n", hor, ver);
+                horb[i][j] = right + left + 1;
+                verb[i][j] = up + down + 1;
+                printf("| %dh %dv\n", horb[i][j], verb[i][j]);
             }
         }
     }
-    printf("\n");
+    destroy();
+    return 0;
+}
+
+int destroy()
+{
+    int fnc = 0;
+    for (i = 0; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            state  = field[i][j] / 10;
+            number = field[i][j] % 10;
+            if ((field[i][j] != 0) && (state == 0) && (number != 0) && (number != 9))
+            {
+                if ((field[i][j] == horb[i][j]) || (field[i][j] == verb[i][j]))
+                {
+                    printf("destroy... %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
+                    field[i][j] = 0;
+                    fnc = 1;
+                }
+            }
+        }
+    }
+    if (fnc == 1)
+    {
+        fall();
+        check();
+    }
 }
 
 int main()
@@ -191,6 +223,7 @@ int main()
     while (gameover != 1)
     {
         next = 20 * (rand() % 2) + rand() % 9 + 1;
+        if (next == 19) next = 9;
         print();
         do
         {
@@ -200,7 +233,6 @@ int main()
         field[0][place - 1] = next;
         fall();
         check();
-
     }
     return 0;
 }
