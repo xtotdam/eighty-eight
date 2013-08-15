@@ -22,29 +22,35 @@ int init();
 int check();
 int destroy();
 int startscreen();
+int placenew();
 
 int main()
 {
-    int place = 0;
-
     //TODO: logging as console argument?
+    
     startscreen();
     init();
     while (gameover != 1)
     {
-        next = 20 * (rand() % 2) + rand() % 9 + 1;
-        if (next == 19) next = 9;
-        print();
-        do
-        {
-            printf(" > ");
-            scanf("%d", &place);
-        }
-        while ((place < 0) && (place > 9));
-        field[0][place - 1] = next;
+        placenew();
         check();
     }
     return 0;
+}
+int placenew()
+{
+    int place = 0;
+
+    next = 20 * (rand() % 2) + rand() % 9 + 1;
+    if (next == 19) next = 9;
+    print();
+    do
+    {
+        printf(" > ");
+        scanf("%d", &place);
+    }
+    while ((place < 0) && (place > 9));
+    field[0][place - 1] = next;
 }
 
 int print()
