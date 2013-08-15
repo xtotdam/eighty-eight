@@ -6,14 +6,13 @@ int field[8][8] = {0};
 int score = 0;
 int next = 0;
 int gameover = 0;
+int state, number;
 
 int print()
 {
-    int state;
-    int number;
     for (i = 0; i < 8; i++)
     {
-        printf(" %d | ", 8 - i);
+        printf(" %d | ", i);
         for (j = 0; j < 8; j++)
         {
             if (field[i][j] == 19)
@@ -78,7 +77,7 @@ int print()
     }
     printf("   |\n");
     printf("    _________________________________________________________________\n");
-    printf("           1       2       3       4       5       6       7       8 \n");
+    printf("           0       1       2       3       4       5       6       7 \n");
     // printf("    ________________________\n");
     // printf("     1  2  3  4  5  6  7  8 \n");    //for final visualisation
     printf("\e[0;m");
@@ -92,6 +91,7 @@ int fall()
     int temp = 0;
     do
     {
+        printf("Falling...  ");
         fallen = 0;
         for (j = 0; j < 8; j++)
         {
@@ -122,11 +122,11 @@ int fall()
 int init()
 {
     int seed = 1;
-    printf("Enter integer seed for random generator :   ");
-    scanf("%d", &seed);
-    printf("\n\n");
+    // printf("Enter integer seed for random generator :   ");
+    // scanf("%d", &seed);
+    // printf("\n\n");
     srand(seed);
-    for (i = 0; i < 16; i++)
+    for (i = 0; i < 20; i++)
     {
         field[rand() % 8][rand() % 8] = 20 * (rand() % 2) + rand() % 9 + 1;
     }
@@ -135,7 +135,55 @@ int init()
     return 0;
 }
 
-int main(int argc, char const *argv[])
+int check()
+{
+    int up, right, down, left;
+    int hor, ver;
+    int k;
+
+    for (i = 0; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            state  = field[i][j] / 10;
+            number = field[i][j] % 10;
+            up = 0; right = 0; down = 0; left = 0;
+
+            if ((field[i][j] != 0) && (state == 0) && (number != 0) && (number != 9))
+            {
+                up = 0; right = 0; down = 0; left = 0;
+                printf("Checking... %d%d [%d] ", i, j, number);
+                for (k = i - 1; k > (-1); k--)
+                {
+                    if (field[k][j] == 0) break;
+                    up++;
+                }
+                for (k = j + 1; k < 8; k++)
+                {
+                    if (field[i][k] == 0) break;
+                    right++;
+                }
+                for (k = i + 1; k < 8; k++)
+                {
+                    if (field[k][j] == 0) break;
+                    down++;
+                }
+                for (k = j - 1; k > (-1); k--)
+                {
+                    if (field[i][k] == 0) break;
+                    left++;
+                }
+                printf(": %du %dr %dd %dl ", up, right, down, left);
+                hor = right + left + 1;
+                ver = up + down + 1;
+                printf("| %dh %dv\n", hor, ver);
+            }
+        }
+    }
+    printf("\n");
+}
+
+int main()
 {
     int place = 0;
 
@@ -151,6 +199,7 @@ int main(int argc, char const *argv[])
         while ((place < 0) && (place > 9));
         field[0][place - 1] = next;
         fall();
+        check();
 
     }
     return 0;
