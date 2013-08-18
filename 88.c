@@ -51,6 +51,13 @@ int placenew()
         scanf("%d", &place);
     }
     while ((place < 0) && (place > 9));
+
+    if ((place < 0) || (abs(place) == 0))
+    {
+        place += (place / 8 + 1) * 8;
+    }
+    place = (place - 1) % 8 + 1;    //for negatives and zero
+
     field[0][place - 1] = next;
     if (DEBUG) printf("\e[01;38;05;110mA\e[0mdding...   [%d] > %d\n", next, place);
 }
