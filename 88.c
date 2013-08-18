@@ -3,7 +3,7 @@
 #include "time.h"
 
 #define DEBUG 1
-#define LOG 0
+#define LOG 0   //does nothing
 
 int i, j;
 int field[8][8] = {0};
@@ -27,7 +27,7 @@ int placenew();
 int main()
 {
     //TODO: logging as console argument?
-    
+
     startscreen();
     init();
     while (gameover != 1)
@@ -37,6 +37,7 @@ int main()
     }
     return 0;
 }
+
 int placenew()
 {
     int place = 0;
@@ -51,9 +52,10 @@ int placenew()
     }
     while ((place < 0) && (place > 9));
     field[0][place - 1] = next;
+    if (DEBUG) printf("\e[01;38;05;110mA\e[0mdding...   [%d] > %d\n", next, place);
 }
 
-int print()
+int print() //doesn't call any other functions
 {
     for (i = 0; i < 8; i++)
     {
@@ -121,7 +123,7 @@ int print()
     return 0;
 }
 
-int fall()
+int fall()  //doesn't call any other functions
 {
     int fall[8] = {0};
     int fallen = 0;
@@ -156,7 +158,7 @@ int fall()
     return 0;
 }
 
-int init()
+int init()  //calls fall(),print(),check()
 {
     int seed = 1;
     //TODO: seed as console argument
@@ -174,19 +176,23 @@ int init()
     return 0;
 }
 
-int check()
+int check() //calls fall(),print(),destroy()
 {
     int up, right, down, left;
     int hor, ver;
     int k;
 
     fall();
-    if (fnc == 1) print();
+    //if (fnc == 1) print();    //it is useful to show chains, but is buggy now
     for (i = 0; i < 8; i++)
     {
         for (j = 0; j < 8; j++)
         {
-            if (field[i][j] == 19) field[i][j] = 9;    //because no bombs can be grey
+            if (field[i][j] == 19)
+            {
+                field[i][j] = 9;    //because no bombs can be grey
+                printf("\e[01;38;05;222mI\e[0mgnite...  %d%d : (29 >) 19 > 9\n", i, j);
+            }
 
             state  = field[i][j] / 10;
             number = field[i][j] % 10;
@@ -227,7 +233,7 @@ int check()
     return 0;
 }
 
-int destroy()
+int destroy()   //calls check() if destroys a block
 {
     fnc = 0;
     for (i = 0; i < 8; i++)
@@ -243,6 +249,30 @@ int destroy()
                     if (DEBUG) printf("\e[01;38;05;196mD\e[0mestroy...  %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
                     field[i][j] = 0;
                     fnc = 1;
+
+                    if (((i - 1) >= 0) && ((i - 1) < 8) && (field[i - 1][j] > 9))
+                    {
+                        field[i - 1][j] -= 10;
+                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i - 1, j, field[i - 1][j] + 10, field[i - 1][j]);
+                    }
+                    if (((j + 1) >= 0) && ((j + 1) < 8) && (field[i][j + 1] > 9))
+                    {
+                        field[i][j + 1] -= 10;
+                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i, j + 1, field[i][j + 1] + 10, field[i][j + 1]);
+
+                    }
+                    if (((i + 1) >= 0) && ((i + 1) < 8) && (field[i + 1][j] > 9))
+                    {
+                        field[i + 1][j] -= 10;
+                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i + 1, j, field[i + 1][j] + 10, field[i + 1][j]);
+
+                    }
+                    if (((j - 1) >= 0) && ((j - 1) < 8) && (field[i][j - 1] > 9))
+                    {
+                        field[i][j - 1] -= 10;
+                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i , j - 1, field[i][j - 1] + 10, field[i ][j - 1]);
+
+                    }
                 }
             }
         }
@@ -251,7 +281,7 @@ int destroy()
     return 0;
 }
 
-int startscreen()
+int startscreen()   //doesn't call any other functions
 {
     if (DEBUG) printf("*2-4-6-8*1*2-4-6-8*2*2-4-6-8*3*2-4-6-8*4*2-4-6-8*5*2-4-6-8*6*2-4-6-8*7*2-4-6-8*8*2-4-6-8*9\n\n");
     printf("  **                                                                                 **   \n");
@@ -259,12 +289,12 @@ int startscreen()
     printf("  **                                                                                 **   \n");
     printf("\n\n");
     printf("  Rules:\n");
-    printf("\e[01;38;05;107m     *  Block disappears, if its number equals amount of blocks in the same row/column.\n");
-    printf("\e[01;38;05;242m     *  Gray blocks are uncovered by breaking touching blocks.\n");
-    printf("\e[01;38;05;242m     *  Bomb can be triggered by breaking block in the same row/column.\n");
-    printf("\e[01;38;05;107m     *  When block disappears, block above will drop.\n");
-    printf("\e[01;38;05;242m     *  New level is reached, when indicator below is full.\n");
-    printf("\e[01;38;05;242m     *  When any block is pushed out of the grid, game is over.\n\e[0m");
+    printf("\e[01;38;05;107m     v  Block disappears, if its number equals amount of blocks in the same row/column.\n");
+    printf("\e[01;38;05;107m     v  Gray blocks are uncovered by breaking touching blocks.\n");
+    printf("\e[01;38;05;242m     x  Bomb can be triggered by breaking block in the same row/column.\n");
+    printf("\e[01;38;05;107m     v  When block disappears, block above will drop.\n");
+    printf("\e[01;38;05;242m     x  New level is reached, when indicator below is full.\n");
+    printf("\e[01;38;05;242m     x  When any block is pushed out of the grid, game is over.\n\e[0m");
     printf("\n");
     printf("  Instructions:\n");
     printf("     *  Enter number of column, where next block drops.\n");
