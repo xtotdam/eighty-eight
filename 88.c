@@ -40,7 +40,10 @@ int main(int argc, char const *argv[])
         if (strcmp(argv[i], "--debug") == 0)
         {
             DEBUG = 1;
-            printf("Debugging is on!\n");
+        }
+        if (strcmp(argv[i], "--chains") == 0)
+        {
+            CHAINS = 1;
         }
         if (strncmp(argv[i], "--seed=", 7) == 0)
         {
@@ -267,7 +270,8 @@ int check() //calls fall(),print(),destroy()
     int hor, ver;
 
     fall();
-    //if (fnc == 1) print();    //it is useful to show chains, but is buggy now
+    printf("---\n");
+    if (CHAINS) print();    //it is useful to show chains, but is buggy now, so --chains
     for (i = 0; i < 8; i++)
     {
         for (j = 0; j < 8; j++)
