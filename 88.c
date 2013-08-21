@@ -3,6 +3,8 @@
 #include "time.h"
 #include "string.h"
 
+#define NLevel 20
+
 int i, j, k;
 int field[8][8] = {0};
 int horb[8][8] = {0};
@@ -18,6 +20,8 @@ int LOG = 0;
 int DEBUG = 0;
 int seed = 0;
 int scoreadd;
+int levels = 0;
+int CHAINS = 0;
 
 int print();
 int fall();
@@ -46,7 +50,6 @@ int main(int argc, char const *argv[])
                 tempstring[j - 7] = argv[i][j];
             }
             seed = atoi(tempstring);
-            printf("Seed caught! %d\n", seed);
         }
     }
 
@@ -58,12 +61,44 @@ int main(int argc, char const *argv[])
         check();
         indicator++;
     }
+    printf("Game over!\nYour score: %d\nYou survived %d levels!\n", score, levels);
     return 0;
 }
 
 int newlevel()
 {
+    indicator = 0;
+    levels++;
+    scoreadd = 1000;
+    printf("New level score: +%d\n", scoreadd);
+    score += scoreadd;
 
+    if (DEBUG) printf("\e[01;38;05;110N\e[0mew level: ");
+
+    for (i = 0; i < 8; i++)
+    {
+        if (field[0][i] != 0)
+        {
+            gameover = 1;
+        }
+    }
+
+    for (i = 1; i < 8; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            field[i - 1][j] = field[i][j];
+        }
+    }
+
+    for (i = 0; i < 8; i++)
+    {
+        field[7][i] = nextblock();
+        if (DEBUG) printf("[%d]", field[7][i]);
+    }
+    if (DEBUG) printf("\n");
+    check();
+    return 0;
 }
 
 int nextblock()
@@ -106,6 +141,7 @@ int print() //doesn't call any other functions
         {
             state = field[i][j] / 10;
             number = field[i][j] % 10;
+            if (field[i][j] == 19) field[i][j] = 9;
             if (DEBUG) printf("%2d %2d", state, number);
 
             if      ((state == 1))  printf("\e[01;38;05;242m[%d]\e[0m", number);
@@ -161,6 +197,11 @@ int print() //doesn't call any other functions
     if (!DEBUG) printf("   |_________________________\n");
     if (!DEBUG) printf("      1  2  3  4  5  6  7  8 \n");
     printf("\e[0;m");
+    printf("     < ");
+    for (i = 0; i < (NLevel - indicator); i++) printf("=");
+    for (i = 0; i < indicator; i++) printf("\e[01;38;05;242m-");
+    if (DEBUG) printf("\e[0m : %d", indicator);
+    printf("\e[0m >\n");
     return 0;
 }
 
@@ -276,6 +317,7 @@ int check() //calls fall(),print(),destroy()
         }
     }
     destroy();
+    if (indicator == NLevel) newlevel();
     return 0;
 }
 
@@ -493,12 +535,12 @@ int startscreen()   //doesn't call any other functions
     printf("\e[01;38;05;107m     v  Gray blocks are uncovered by breaking touching blocks.\n");
     printf("\e[01;38;05;107m     v  Bomb can be triggered by breaking block in the same row/column.\n");
     printf("\e[01;38;05;107m     v  When block disappears, block above will drop.\n");
-    printf("\e[01;38;05;242m     x  New level is reached, when indicator below is full.\n");
+    printf("\e[01;38;05;107m     v  New level is reached, when indicator below is full.\n");
     printf("\e[01;38;05;242m     x  When any block is pushed out of the grid, game is over.\n\e[0m");
     printf("\n");
     printf("  Instructions:\n");
     printf("\e[01;38;05;107m     v  Enter number of column, where next block drops.\n");
-    printf("\e[01;38;05;107m     v  Use --debug, --seed=SEED arguments.\n");
+    printf("\e[01;38;05;107m     v  Use --debug, --seed=SEED, --chains arguments.\n");
     printf("\n\n");
     printf("\e[01;38;05;222m             Enjoy!\e[0m\n\n");
     getchar();
