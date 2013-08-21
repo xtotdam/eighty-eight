@@ -1,11 +1,9 @@
 #include "stdio.h"
 #include "stdlib.h"
 #include "time.h"
+#include "string.h"
 
-#define DEBUG 1
-#define LOG 0   //does nothing
-
-int i, j;
+int i, j, k;
 int field[8][8] = {0};
 int horb[8][8] = {0};
 int verb[8][8] = {0};
@@ -15,6 +13,10 @@ int gameover = 0;
 int state, number;
 int tobechecked = 0;
 int fnc = 0;
+int indicator = 0;
+int LOG = 0;
+int DEBUG = 0;
+char exdebug[] = "--debug";
 
 int print();
 int fall();
@@ -24,17 +26,29 @@ int destroy();
 int startscreen();
 int placenew();
 int nextblock();
+int newlevel();
 
-int main()
+int main(int argc, char const *argv[])
 {
+    for (i = 1; i < argc; i++)
+    {
+        if (strcmp(argv[i], exdebug) == 0) DEBUG = 1;
+    }
+
     startscreen();
     init();
     while (gameover != 1)
     {
         placenew();
         check();
+        indicator++;
     }
     return 0;
+}
+
+int newlevel()
+{
+
 }
 
 int nextblock()
@@ -68,7 +82,7 @@ int placenew()  //calls print(),nextblock()
 int print() //doesn't call any other functions
 {
     if (DEBUG)  printf("    _________________________________________________________________\n");
-    if (!DEBUG) printf("   |_________________________\n");
+    if (!DEBUG) printf("    _________________________\n");
     for (i = 0; i < 8; i++)
     {
         if (DEBUG) printf(" %d | ", i);
@@ -191,7 +205,6 @@ int check() //calls fall(),print(),destroy()
 {
     int up, right, down, left;
     int hor, ver;
-    int k;
 
     fall();
     //if (fnc == 1) print();    //it is useful to show chains, but is buggy now
@@ -202,7 +215,7 @@ int check() //calls fall(),print(),destroy()
             if (field[i][j] == 19)
             {
                 field[i][j] = 9;    //because no bombs can be grey
-                printf("\e[01;38;05;222mI\e[0mgnite...   %d%d : (29 >) 19 > 9\n", i, j);
+                if (DEBUG) printf("\e[01;38;05;222mI\e[0mgnite...   %d%d : (29 >) 19 > 9\n", i, j);
             }
 
             state  = field[i][j] / 10;
@@ -237,6 +250,9 @@ int check() //calls fall(),print(),destroy()
                 horb[i][j] = right + left + 1;
                 verb[i][j] = up + down + 1;
                 if (DEBUG) printf("| %dh %dv\n", horb[i][j], verb[i][j]);
+                //maybe not-zeroing horb[][] and verb[][] can cause a bug, when already not
+                //actual values in them will cause another blocks to disappear.
+                //it has to be proven experimentally.
             }
         }
     }
@@ -264,25 +280,136 @@ int destroy()   //calls check() if destroys a block
                     if (((i - 1) >= 0) && ((i - 1) < 8) && (field[i - 1][j] > 9))
                     {
                         field[i - 1][j] -= 10;
-                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i - 1, j, field[i - 1][j] + 10, field[i - 1][j]);
-                    }
+                        if (DEBUG) printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i - 1, j, field[i - 1][j] + 10, field[i - 1][j]);
+                    }   //N
+
                     if (((j + 1) >= 0) && ((j + 1) < 8) && (field[i][j + 1] > 9))
                     {
                         field[i][j + 1] -= 10;
-                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i, j + 1, field[i][j + 1] + 10, field[i][j + 1]);
+                        if (DEBUG) printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i, j + 1, field[i][j + 1] + 10, field[i][j + 1]);
+                    }   //E
 
-                    }
                     if (((i + 1) >= 0) && ((i + 1) < 8) && (field[i + 1][j] > 9))
                     {
                         field[i + 1][j] -= 10;
-                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i + 1, j, field[i + 1][j] + 10, field[i + 1][j]);
+                        if (DEBUG) printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i + 1, j, field[i + 1][j] + 10, field[i + 1][j]);
+                    }   //S
 
-                    }
                     if (((j - 1) >= 0) && ((j - 1) < 8) && (field[i][j - 1] > 9))
                     {
                         field[i][j - 1] -= 10;
-                        printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i , j - 1, field[i][j - 1] + 10, field[i ][j - 1]);
+                        if (DEBUG) printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n", i , j - 1, field[i][j - 1] + 10, field[i ][j - 1]);
+                    }   //W
 
+                    for (k = 0; k < 8; k++)
+                    {
+                        if ((field[k][j] % 10 == 9) && (field[k][j] / 10 == 0))
+                        {
+                            field[k][j] = 0;
+                            if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", k, j);
+
+                            if (((k - 1) >= 0) && ((k - 1) < 8) && (field[k - 1][j] > 9))
+                            {
+                                field[k - 1][j] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j, field[k - 1][j] + 10, field[k - 1][j]);
+                            }   //N
+
+                            if (((k - 1) >= 0) && ((k - 1) < 8) && ((j + 1) >= 0) && ((j + 1) < 8) && (field[k - 1][j + 1] > 9))
+                            {
+                                field[k - 1][j + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j + 1, field[k - 1][j + 1] + 10, field[k - 1][j + 1]);
+                            }   //NE
+
+                            if (((j + 1) >= 0) && ((j + 1) < 8) && (field[k][j + 1] > 9))
+                            {
+                                field[k][j + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k, j + 1, field[k][j + 1] + 10, field[k][j + 1]);
+                            }   //E
+
+                            if (((k + 1) >= 0) && ((k + 1) < 8) && ((j + 1) >= 0) && ((j + 1) < 8) && (field[k + 1][j + 1] > 9))
+                            {
+                                field[k + 1][j + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j + 1, field[k + 1][j + 1] + 10, field[k + 1][j + 1]);
+                            }   //SE
+
+                            if (((k + 1) >= 0) && ((k + 1) < 8) && (field[k + 1][j] > 9))
+                            {
+                                field[k + 1][j] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j, field[k + 1][j] + 10, field[k + 1][j]);
+                            }   //S
+
+                            if (((k + 1) >= 0) && ((k + 1) < 8) && ((j - 1) >= 0) && ((j - 1) < 8) && (field[k + 1][j - 1] > 9))
+                            {
+                                field[k + 1][j - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j - 1, field[k + 1][j - 1] + 10, field[k + 1][j - 1]);
+                            }   //SW
+
+                            if (((j - 1) >= 0) && ((j - 1) < 8) && (field[k][j - 1] > 9))
+                            {
+                                field[k][j - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k , j - 1, field[k][j - 1] + 10, field[k][j - 1]);
+                            }   //W
+
+                            if (((k - 1) >= 0) && ((k - 1) < 8) && ((j - 1) >= 0) && ((j - 1) < 8) && (field[k - 1][j - 1] > 9))
+                            {
+                                field[k - 1][j - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j - 1, field[k - 1][j - 1] + 10, field[k - 1][j - 1]);
+                            }   //NW
+                        }
+
+                        if ((field[i][k] % 10 == 9) && (field[i][k] / 10 == 0))
+                        {
+                            field[i][k] = 0;
+                            if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", i, k);
+
+                            if (((i - 1) >= 0) && ((i - 1) < 8) && (field[i - 1][k] > 9))
+                            {
+                                field[i - 1][k] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k, field[i - 1][k] + 10, field[i - 1][k]);
+                            }   //N
+
+                            if (((i - 1) >= 0) && ((i - 1) < 8) && ((k + 1) >= 0) && ((k + 1) < 8) && (field[i - 1][k + 1] > 9))
+                            {
+                                field[i - 1][k + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k + 1, field[i - 1][k + 1] + 10, field[i - 1][k + 1]);
+                            }   //NE
+
+                            if (((k + 1) >= 0) && ((k + 1) < 8) && (field[i][k + 1] > 9))
+                            {
+                                field[i][k + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i, k + 1, field[i][k + 1] + 10, field[i][k + 1]);
+                            }   //E
+
+                            if (((i + 1) >= 0) && ((i + 1) < 8) && ((k + 1) >= 0) && ((k + 1) < 8) && (field[i + 1][k + 1] > 9))
+                            {
+                                field[i + 1][k + 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k + 1, field[i + 1][k + 1] + 10, field[i + 1][k + 1]);
+                            }   //SE
+
+                            if (((i + 1) >= 0) && ((i + 1) < 8) && (field[i + 1][k] > 9))
+                            {
+                                field[i + 1][k] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k, field[i + 1][k] + 10, field[i + 1][k]);
+                            }   //S
+
+                            if (((i + 1) >= 0) && ((i + 1) < 8) && ((k - 1) >= 0) && ((k - 1) < 8) && (field[i + 1][k - 1] > 9))
+                            {
+                                field[i + 1][k - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k - 1, field[i + 1][k - 1] + 10, field[i + 1][k - 1]);
+                            }   //SW
+
+                            if (((k - 1) >= 0) && ((k - 1) < 8) && (field[i][k - 1] > 9))
+                            {
+                                field[i][k - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i , k - 1, field[i][k - 1] + 10, field[i ][k - 1]);
+                            }   //W
+
+                            if (((i - 1) >= 0) && ((i - 1) < 8) && ((k - 1) >= 0) && ((k - 1) < 8) && (field[i - 1][k - 1] > 9))
+                            {
+                                field[i - 1][k - 1] -= 10;
+                                if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k - 1, field[i - 1][k - 1] + 10, field[i - 1][k - 1]);
+                            }   //NW
+                        }
                     }
                 }
             }
@@ -294,7 +421,7 @@ int destroy()   //calls check() if destroys a block
 
 int startscreen()   //doesn't call any other functions
 {
-    if (DEBUG) printf("*2-4-6-8*1*2-4-6-8*2*2-4-6-8*3*2-4-6-8*4*2-4-6-8*5*2-4-6-8*6*2-4-6-8*7*2-4-6-8*8*2-4-6-8*9\n\n");
+    if (DEBUG) printf("\n*2-4-6-8*1*2-4-6-8*2*2-4-6-8*3*2-4-6-8*4*2-4-6-8*5*2-4-6-8*6*2-4-6-8*7*2-4-6-8*8*2-4-6-8*9\n\n");
     printf("  **                                                                                 **   \n");
     printf("  *                                   Eighty  Eight                                   *   \n");
     printf("  **                                                                                 **   \n");
@@ -302,16 +429,17 @@ int startscreen()   //doesn't call any other functions
     printf("  Rules:\n");
     printf("\e[01;38;05;107m     v  Block disappears, if its number equals amount of blocks in the same row/column.\n");
     printf("\e[01;38;05;107m     v  Gray blocks are uncovered by breaking touching blocks.\n");
-    printf("\e[01;38;05;242m     x  Bomb can be triggered by breaking block in the same row/column.\n");
+    printf("\e[01;38;05;107m     v  Bomb can be triggered by breaking block in the same row/column.\n");
     printf("\e[01;38;05;107m     v  When block disappears, block above will drop.\n");
     printf("\e[01;38;05;242m     x  New level is reached, when indicator below is full.\n");
     printf("\e[01;38;05;242m     x  When any block is pushed out of the grid, game is over.\n\e[0m");
     printf("\n");
     printf("  Instructions:\n");
     printf("\e[01;38;05;107m     v  Enter number of column, where next block drops.\n");
-    printf("\e[01;38;05;242m   xxx  Use --log, --debug, --seed=SEED arguments.\n");
+    printf("\e[01;38;05;107m    v\e[01;38;05;242mx  Use \e[01;38;05;107m--debug, \e[01;38;05;242m--seed=SEED arguments.\n");
     printf("\n\n");
-    printf("             Enjoy!\e[0m\n\n");
+    printf("\e[01;38;05;222m             Enjoy!\e[0m\n\n");
+    printf("\nDebugging: %d\n", DEBUG);
     getchar();
     return 0;
 }
