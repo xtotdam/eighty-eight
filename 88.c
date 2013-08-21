@@ -23,11 +23,10 @@ int check();
 int destroy();
 int startscreen();
 int placenew();
+int nextblock();
 
 int main()
 {
-    //TODO: logging as console argument?
-
     startscreen();
     init();
     while (gameover != 1)
@@ -38,12 +37,16 @@ int main()
     return 0;
 }
 
-int placenew()
+int nextblock()
+{
+    return 20 * (rand() % 2) + rand() % 9 + 1;
+}
+
+int placenew()  //calls print(),nextblock()
 {
     int place = 0;
 
-    next = 20 * (rand() % 2) + rand() % 9 + 1;
-    if (next == 19) next = 9;
+    next = nextblock();
     print();
     do
     {
@@ -64,6 +67,8 @@ int placenew()
 
 int print() //doesn't call any other functions
 {
+    if (DEBUG)  printf("    _________________________________________________________________\n");
+    if (!DEBUG) printf("   |_________________________\n");
     for (i = 0; i < 8; i++)
     {
         if (DEBUG) printf(" %d | ", i);
@@ -165,17 +170,16 @@ int fall()  //doesn't call any other functions
     return 0;
 }
 
-int init()  //calls fall(),print(),check()
+int init()  //calls fall(),print(),check(),nextblock();
 {
     int seed = 1;
-    //TODO: seed as console argument
     seed = time(NULL);
     srand(seed);
     printf("seed:  %d\n", seed);
 
     for (i = 0; i < 20; i++)
     {
-        field[rand() % 8][rand() % 8] = 20 * (rand() % 2) + rand() % 9 + 1;
+        field[rand() % 8][rand() % 8] = nextblock();
     }
     fall();
     print();
@@ -198,7 +202,7 @@ int check() //calls fall(),print(),destroy()
             if (field[i][j] == 19)
             {
                 field[i][j] = 9;    //because no bombs can be grey
-                printf("\e[01;38;05;222mI\e[0mgnite...  %d%d : (29 >) 19 > 9\n", i, j);
+                printf("\e[01;38;05;222mI\e[0mgnite...   %d%d : (29 >) 19 > 9\n", i, j);
             }
 
             state  = field[i][j] / 10;
@@ -304,7 +308,8 @@ int startscreen()   //doesn't call any other functions
     printf("\e[01;38;05;242m     x  When any block is pushed out of the grid, game is over.\n\e[0m");
     printf("\n");
     printf("  Instructions:\n");
-    printf("     *  Enter number of column, where next block drops.\n");
+    printf("\e[01;38;05;107m     v  Enter number of column, where next block drops.\n");
+    printf("\e[01;38;05;242m   xxx  Use --log, --debug, --seed=SEED arguments.\n");
     printf("\n\n");
     printf("             Enjoy!\e[0m\n\n");
     getchar();
