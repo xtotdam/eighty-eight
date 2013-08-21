@@ -16,7 +16,7 @@ int fnc = 0;
 int indicator = 0;
 int LOG = 0;
 int DEBUG = 0;
-char exdebug[] = "--debug";
+int seed = 0;
 
 int print();
 int fall();
@@ -32,7 +32,21 @@ int main(int argc, char const *argv[])
 {
     for (i = 1; i < argc; i++)
     {
-        if (strcmp(argv[i], exdebug) == 0) DEBUG = 1;
+        if (strcmp(argv[i], "--debug") == 0)
+        {
+            DEBUG = 1;
+            printf("Debugging is on!\n");
+        }
+        if (strncmp(argv[i], "--seed=", 7) == 0)
+        {
+            char tempstring[50];
+            for (j = 7; j < strlen(argv[i]); j++)
+            {
+                tempstring[j - 7] = argv[i][j];
+            }
+            seed = atoi(tempstring);
+            printf("Caught seed! %d\n", seed);
+        }
     }
 
     startscreen();
@@ -186,8 +200,12 @@ int fall()  //doesn't call any other functions
 
 int init()  //calls fall(),print(),check(),nextblock();
 {
-    int seed = 1;
-    seed = time(NULL);
+    int timeseed = time(NULL);
+
+    if (seed == 0)
+    {
+        seed = timeseed;
+    }
     srand(seed);
     printf("seed:  %d\n", seed);
 
@@ -436,10 +454,9 @@ int startscreen()   //doesn't call any other functions
     printf("\n");
     printf("  Instructions:\n");
     printf("\e[01;38;05;107m     v  Enter number of column, where next block drops.\n");
-    printf("\e[01;38;05;107m    v\e[01;38;05;242mx  Use \e[01;38;05;107m--debug, \e[01;38;05;242m--seed=SEED arguments.\n");
+    printf("\e[01;38;05;107m     v  Use --debug, --seed=SEED arguments.\n");
     printf("\n\n");
     printf("\e[01;38;05;222m             Enjoy!\e[0m\n\n");
-    printf("\nDebugging: %d\n", DEBUG);
     getchar();
     return 0;
 }
