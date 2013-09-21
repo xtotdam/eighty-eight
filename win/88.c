@@ -6,7 +6,8 @@
 #include "color_con.h"
 
 #define NLevel 20
-#define Version 21  //numbers of commits in repo
+#define Version 22  //numbers of commits in repo
+//win version
 
 int i, j, k;
 int field[8][8] = {0};
@@ -95,6 +96,7 @@ int main(int argc, char const *argv[])
         indicator++;
     }
     printf("Game over!\nYour score: %d\nYou survived %d levels!\n", score, levels);
+    system("pause");
     return 0;
 }
 

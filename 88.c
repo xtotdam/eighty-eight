@@ -4,7 +4,7 @@
 #include "string.h"
 
 #define NLevel 20
-#define Version 21  //numbers of commits in repo
+#define Version 22  //numbers of commits in repo
 
 int i, j, k;
 int field[8][8] = {0};
