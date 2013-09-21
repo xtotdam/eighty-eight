@@ -6,7 +6,7 @@
 #include "color_con.h"
 
 #define NLevel 20
-#define Version 22  //numbers of commits in repo
+#define Version 23  //numbers of commits in repo
 //win version
 
 int i, j, k;
@@ -444,9 +444,12 @@ void startscreen()   //doesn't call any other functions
         "  Rules:\n"
         "            v  Block disappears, if its number equals amount\n"
         "                    of blocks in the same row/column.\n"
-        "            v  Gray blocks are uncovered by breaking\n"
+        "            v  Grey blocks are uncovered by breaking\n"
         "                    touching blocks.\n"
-        "            v  Bomb can be triggered by breaking block in\n"
+        "                    [*] -> [5] -> ");
+    settxt(12); printf("[5]\n"); clrclr();
+    printf(
+        "            v  Bomb [@] can be triggered by breaking block in\n"
         "                    the same row/column.\n"
         "            v  When block disappears, block above will drop.\n"
         "            v  New level is reached, when indicator below is full.\n"
