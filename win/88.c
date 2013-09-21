@@ -3,6 +3,8 @@
 #include "time.h"
 #include "string.h"
 
+#include "color_con.h"
+
 #define NLevel 20
 #define Version 21  //numbers of commits in repo
 
@@ -76,7 +78,7 @@ int main(int argc, char const *argv[])
         if (strcmp(argv[i], "--version") == 0)
         {
             printf(
-                "Eighty-eight version 0.%d\n"
+                "Eighty-eight version 0.%d win\n"
                 "(c) xtotdam  CC-BY-SA\n"
                 "e-mail: xtotdam@ya.ru\n"
                 , Version);
@@ -104,7 +106,7 @@ int newlevel()
     printf("New level score: +%d\n", scoreadd);
     score += scoreadd;
 
-    if (DEBUG) printf("\e[01;38;05;110N\e[0mew level: ");
+    if (DEBUG) printf("New level: ");
 
     for (i = 0; i < 8; i++)
     {
@@ -156,7 +158,7 @@ void placenew()  //calls print(),nextblock()
     place = (place - 1) % 8 + 1;    //for negatives and zero
 
     field[0][place - 1] = next;
-    if (DEBUG) printf("\e[01;38;05;110mA\e[0mdding...   [%d] > %d\n", next, place);
+    if (DEBUG) printf("Adding...   [%d] > %d\n", next, place);
 }
 
 int print() //doesn't call any other functions
@@ -174,22 +176,32 @@ int print() //doesn't call any other functions
             if (field[i][j] == 19) field[i][j] = 9;
             if (DEBUG) printf("%2d %2d", state, number);
 
-            if      ((state == 1))  printf("\e[01;38;05;242m[%d]\e[0m", number);
-            else if ((state == 2))  printf("\e[01;38;05;242m[*]\e[0m");
+            if      ((state == 1))
+            {
+                settxt(Gray);
+                printf("[%d]", number);
+                clrclr();
+            }
+            else if ((state == 2))
+            {
+                settxt(Gray);
+                printf("[*]");
+                clrclr();
+            }
             else if ((state == 0))
             {
                 switch (number)
                 {
                 case 0: printf("[ ]"); break;
-                case 1: printf("\e[01;38;05;80m[1]\e[0m"); break;
-                case 2: printf("\e[01;38;05;100m[2]\e[0m"); break;
-                case 3: printf("\e[01;38;05;120m[3]\e[0m"); break;
-                case 4: printf("\e[01;38;05;140m[4]\e[0m"); break;
-                case 5: printf("\e[01;38;05;160m[5]\e[0m"); break;
-                case 6: printf("\e[01;38;05;180m[6]\e[0m"); break;
-                case 7: printf("\e[01;38;05;200m[7]\e[0m"); break;
-                case 8: printf("\e[01;38;05;220m[8]\e[0m"); break;
-                case 9: printf("\e[01;38;05;240m[@]\e[0m"); break;  //bomb
+                case 1: settxt(11); printf("[1]"); clrclr(); break;
+                case 2: settxt(6); printf("[2]"); clrclr(); break;
+                case 3: settxt(10); printf("[3]"); clrclr(); break;
+                case 4: settxt(5); printf("[4]"); clrclr(); break;
+                case 5: settxt(12); printf("[5]"); clrclr(); break;
+                case 6: settxt(14); printf("[6]"); clrclr(); break;
+                case 7: settxt(13); printf("[7]"); clrclr(); break;
+                case 8: settxt(9); printf("[8]"); clrclr(); break;
+                case 9: settxt(8); printf("[@]"); clrclr(); break;  //bomb
                 default: printf("XXX"); break;
                 }
             }
@@ -201,20 +213,25 @@ int print() //doesn't call any other functions
             number = next % 10;
             if (DEBUG) printf("%2d %2d", state, number);
 
-            if      ((state == 2))  printf("\e[01;38;05;242m[*]\e[0m");
+            if      ((state == 2))
+            {
+                settxt(Gray);
+                printf("[*]");
+                clrclr();
+            }
             else if ((state == 0))
             {
                 switch (number)
                 {
-                case 1: printf("\e[01;38;05;80m[1]\e[0m"); break;
-                case 2: printf("\e[01;38;05;100m[2]\e[0m"); break;
-                case 3: printf("\e[01;38;05;120m[3]\e[0m"); break;
-                case 4: printf("\e[01;38;05;140m[4]\e[0m"); break;
-                case 5: printf("\e[01;38;05;160m[5]\e[0m"); break;
-                case 6: printf("\e[01;38;05;180m[6]\e[0m"); break;
-                case 7: printf("\e[01;38;05;200m[7]\e[0m"); break;
-                case 8: printf("\e[01;38;05;220m[8]\e[0m"); break;
-                case 9: printf("\e[01;38;05;240m[@]\e[0m"); break;  //bomb
+                case 1: settxt(11); printf("[1]"); clrclr(); break;
+                case 2: settxt(6); printf("[2]"); clrclr(); break;
+                case 3: settxt(10); printf("[3]"); clrclr(); break;
+                case 4: settxt(5); printf("[4]"); clrclr(); break;
+                case 5: settxt(12); printf("[5]"); clrclr(); break;
+                case 6: settxt(14); printf("[6]"); clrclr(); break;
+                case 7: settxt(13); printf("[7]"); clrclr(); break;
+                case 8: settxt(9); printf("[8]"); clrclr(); break;
+                case 9: settxt(8); printf("[@]"); clrclr(); break;  //bomb
                 default: printf("XXX"); break;
                 }
             }
@@ -226,12 +243,13 @@ int print() //doesn't call any other functions
     if (DEBUG)  printf("           0       1       2       3       4       5       6       7 \n");
     if (!DEBUG) printf("   |_________________________\n");
     if (!DEBUG) printf("      1  2  3  4  5  6  7  8 \n");
-    printf("\e[0;m");
+    //printf("\e[0;m");
     printf("     < ");
     for (i = 0; i < (NLevel - indicator); i++) printf("=");
-    for (i = 0; i < indicator; i++) printf("\e[01;38;05;242m-");
-    if (DEBUG) printf("\e[0m : %d", indicator);
-    printf("\e[0m >\n");
+    for (i = 0; i < indicator; i++) printf("-");
+    clrclr();
+    if (DEBUG) printf(" : %d", indicator);
+    printf(" >\n");
     return 0;
 }
 
@@ -242,7 +260,7 @@ int fall()  //doesn't call any other functions
     int temp = 0;
     do
     {
-        if (DEBUG) printf("\e[01;38;05;107mF\e[0malling...  ");
+        if (DEBUG) printf("Falling...  ");
         fallen = 0;
         for (j = 0; j < 8; j++)
         {
@@ -280,7 +298,7 @@ int init()  //calls fall(),print(),check(),nextblock();
     }
     srand(seed);
     printf("seed:  %d\n", seed);
-    if (seed == 1) printf("seed 1 : 7 4 4 6 5 6 4 2 3 1 1 2 2 => 2900\n");
+    //if (seed == 1) printf("seed 1 : 7 4 4 6 5 6 4 2 3 1 1 2 2 => 2900\n");
 
     for (i = 0; i < 20; i++)
     {
@@ -307,7 +325,7 @@ int check() //calls fall(),print(),destroy()
             if (field[i][j] == 19)
             {
                 field[i][j] = 9;    //because no bombs can be grey
-                if (DEBUG) printf("\e[01;38;05;222mI\e[0mgnite...   %d%d : (29 >) 19 > 9\n", i, j);
+                if (DEBUG) printf("Ignite...   %d%d : (29 >) 19 > 9\n", i, j);
             }
 
             state  = field[i][j] / 10;
@@ -317,7 +335,7 @@ int check() //calls fall(),print(),destroy()
             if ((field[i][j] != 0) && (state == 0) && (number != 0) && (number != 9))
             {
                 up = 0; right = 0; down = 0; left = 0;
-                if (DEBUG) printf("\e[01;38;05;222mC\e[0mhecking... %d%d [%d] ", i, j, number);
+                if (DEBUG) printf("Checking... %d%d [%d] ", i, j, number);
                 for (k = i - 1; k > (-1); k--)
                 {
                     if (field[k][j] == 0) break; up++;
@@ -362,7 +380,7 @@ int destroy()   //calls check() if destroys a block
             {
                 if ((field[i][j] == horb[i][j]) || (field[i][j] == verb[i][j]))
                 {
-                    if (DEBUG) printf("\e[01;38;05;196mD\e[0mestroy...  %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
+                    if (DEBUG) printf("Destroy...  %d %d [%d] %dh %dv\n", i, j, field[i][j], horb[i][j], verb[i][j]);
                     scoreadd = field[i][j] % 10 * 10;
                     printf("Block destroy score: +%d\n", scoreadd);
                     score += scoreadd;
@@ -379,7 +397,7 @@ int destroy()   //calls check() if destroys a block
                         if (field[k][j] == 9)
                         {
                             field[k][j] = 0;
-                            if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", k, j);
+                            if (DEBUG) printf("Explode...  %d %d [@]\n", k, j);
 
                             discloseblock_kj(0, -1); //N
                             discloseblock_kj(1, -1); //NE
@@ -394,7 +412,7 @@ int destroy()   //calls check() if destroys a block
                         if (field[i][k] == 9)
                         {
                             field[i][k] = 0;
-                            if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", i, k);
+                            if (DEBUG) printf("Explode...  %d %d [@]\n", i, k);
 
                             discloseblock_ik(-1, 0); //N
                             discloseblock_ik(-1, 1); //NE
@@ -422,23 +440,23 @@ void startscreen()   //doesn't call any other functions
         "  **                                                               **   \n"
         "\n\n"
         "  Rules:\n"
-        "\e[01;38;05;107m     v  Block disappears, if its number equals amount\n"
-        "         of blocks in the same row/column.\n"
-        "\e[01;38;05;107m     v  Gray blocks are uncovered by breaking\n"
-        "         touching blocks.\n"
-        "\e[01;38;05;107m     v  Bomb can be triggered by breaking block in\n"
-        "         the same row/column.\n"
-        "\e[01;38;05;107m     v  When block disappears, block above will drop.\n"
-        "\e[01;38;05;107m     v  New level is reached, when indicator below is full.\n"
-        "\e[01;38;05;242m     x  When any block is pushed out of the grid,\n"
-        "         game is over.\n\e[0m"
+        "            v  Block disappears, if its number equals amount\n"
+        "                    of blocks in the same row/column.\n"
+        "            v  Gray blocks are uncovered by breaking\n"
+        "                    touching blocks.\n"
+        "            v  Bomb can be triggered by breaking block in\n"
+        "                    the same row/column.\n"
+        "            v  When block disappears, block above will drop.\n"
+        "            v  New level is reached, when indicator below is full.\n"
+        "            v  When any block is pushed out of the grid,\n"
+        "                    game is over.\n"
         "\n"
         "  Instructions:\n"
-        "\e[01;38;05;107m     v  Enter number of column, where next block drops.\n"
-        "\e[01;38;05;107m     v  Use --debug, --seed=SEED, --chains arguments.\n"
-        "\e[01;38;05;107m     v  To exit input any letter.\n"
+        "            v  Enter number of column, where next block drops.\n"
+        "            v  Use --debug, --seed=SEED, --chains arguments.\n"
+        "            v  To exit input any letter.\n"
         "\n\n"
-        "\e[01;38;05;222m             Enjoy!\e[0m\n\n"
+        "                             Enjoy!\n\n"
     );
     getchar();
 }
@@ -452,7 +470,7 @@ void revealblock(int _di, int _dj)
         field[_newi][_newj] -= 10;
         printf("Block reveal score: +%d\n", 100);
         score += 100;
-        if (DEBUG) printf("\e[01;38;05;196mR\e[0meveal...   %d%d : %d > %d\n",
+        if (DEBUG) printf("Reveal...   %d%d : %d > %d\n",
                               _newi, _newj, field[_newi][_newj] + 10, field[_newi][_newj]);
     }
 }
@@ -466,7 +484,7 @@ void discloseblock_kj(int _dk, int _dj)
         field[_newk][_newj] -= 10;
         printf("Bomb disclose score: +%d\n", 50);
         score += 50;
-        if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n",
+        if (DEBUG) printf("Disclose... %d%d : %d > %d\n",
                               _newk, _newj, field[_newk][_newj] + 10, field[_newk][_newj]);
     }
 }
@@ -480,7 +498,7 @@ void discloseblock_ik(int _di, int _dk)
         field[_newi][_newk] -= 10;
         printf("Bomb disclose score: +%d\n", 50);
         score += 50;
-        if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n",
+        if (DEBUG) printf("Disclose... %d%d : %d > %d\n",
                               _newi, _newk, field[_newi][_newk] + 10, field[_newi][_newk]);
     }
 }

@@ -1,0 +1,1 @@
+gcc -o 88.exe 88.c -lm -std=c99 -g
