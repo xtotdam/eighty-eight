@@ -4,6 +4,7 @@
 #include "string.h"
 
 #define NLevel 20
+#define Version 20  //numbers of commits in repo
 
 int i, j, k;
 int field[8][8] = {0};
@@ -28,11 +29,11 @@ int fall();
 int init();
 int check();
 int destroy();
-int startscreen();
-int placenew();
-int nextblock();
 int newlevel();
 
+void placenew();
+int nextblock();
+void startscreen();
 void revealblock(int, int);
 void discloseblock_kj(int, int);
 void discloseblock_ik(int, int);
@@ -57,6 +58,29 @@ int main(int argc, char const *argv[])
                 tempstring[j - 7] = argv[i][j];
             }
             seed = atoi(tempstring);
+        }
+        if (strcmp(argv[i], "--help") == 0)
+        {
+            printf(
+                "Eighty-eight\n\n"
+                "  --debug        enable debugging features\n"
+                "  --seed=SEED    start game with SEED as\n"
+                "                 random generator seed\n"
+                "  --chains       enable chains visualisation\n"
+                "                 not recommended - buggy\n"
+                "  --help         show this help and exit\n"
+                "  --version      show version and exit\n"
+            );
+            return 0;
+        }
+        if (strcmp(argv[i], "--version") == 0)
+        {
+            printf(
+                "Eighty-eight version 0.%d\n"
+                "(c) xtotdam  CC-BY-SA\n"
+                "e-mail: xtotdam@ya.ru\n"
+                , Version);
+            return 0;
         }
     }
 
@@ -113,18 +137,17 @@ int nextblock()
     return 20 * (rand() % 2) + rand() % 9 + 1;
 }
 
-int placenew()  //calls print(),nextblock()
+void placenew()  //calls print(),nextblock()
 {
     int place = 0;
 
     next = nextblock();
     print();
-    do
-    {
-        printf(" > ");
-        scanf("%d", &place);
-    }
-    while ((place < 0) && (place > 9));
+
+    printf(" > ");
+    scanf("%d", &place);
+
+    if (field[0][place - 1] != 0) gameover = 1;
 
     if ((place < 0) || (abs(place) == 0))
     {
@@ -257,6 +280,7 @@ int init()  //calls fall(),print(),check(),nextblock();
     }
     srand(seed);
     printf("seed:  %d\n", seed);
+    if (seed == 1) printf("seed 1 : 7 4 4 6 5 6 4 2 3 1 1 2 2 => 2900\n");
 
     for (i = 0; i < 20; i++)
     {
@@ -296,23 +320,19 @@ int check() //calls fall(),print(),destroy()
                 if (DEBUG) printf("\e[01;38;05;222mC\e[0mhecking... %d%d [%d] ", i, j, number);
                 for (k = i - 1; k > (-1); k--)
                 {
-                    if (field[k][j] == 0) break;
-                    up++;
+                    if (field[k][j] == 0) break; up++;
                 }
                 for (k = j + 1; k < 8; k++)
                 {
-                    if (field[i][k] == 0) break;
-                    right++;
+                    if (field[i][k] == 0) break; right++;
                 }
                 for (k = i + 1; k < 8; k++)
                 {
-                    if (field[k][j] == 0) break;
-                    down++;
+                    if (field[k][j] == 0) break; down++;
                 }
                 for (k = j - 1; k > (-1); k--)
                 {
-                    if (field[i][k] == 0) break;
-                    left++;
+                    if (field[i][k] == 0) break; left++;
                 }
                 if (DEBUG) printf(": %du %dr %dd %dl ", up, right, down, left);
                 horb[i][j] = right + left + 1;
@@ -336,8 +356,8 @@ int destroy()   //calls check() if destroys a block
     {
         for (j = 0; j < 8; j++)
         {
-            state  = field[i][j] / 10;
-            number = field[i][j] % 10;
+            state  = field[i][j] / 10; number = field[i][j] % 10;
+
             if ((field[i][j] != 0) && (state == 0) && (number != 0) && (number != 9))
             {
                 if ((field[i][j] == horb[i][j]) || (field[i][j] == verb[i][j]))
@@ -356,162 +376,34 @@ int destroy()   //calls check() if destroys a block
 
                     for (k = 0; k < 8; k++)
                     {
-                        if ((field[k][j] % 10 == 9) && (field[k][j] / 10 == 0))
+                        if (field[k][j] == 9)
                         {
                             field[k][j] = 0;
                             if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", k, j);
 
-                            discloseblock_kj(0,-1); //N
-                            discloseblock_kj(1,-1); //NE
-                            discloseblock_kj(1,0);  //E
-                            discloseblock_kj(1,1);  //SE
-                            discloseblock_kj(0,1);  //S
-                            discloseblock_kj(-1,1); //SW
-                            discloseblock_kj(-1,0); //W
-                            discloseblock_kj(-1,-1);//NW
-
-                            // if (((k - 1) >= 0) && ((k - 1) < 8) && (field[k - 1][j] > 9))
-                            // {
-                            //     field[k - 1][j] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j, field[k - 1][j] + 10, field[k - 1][j]);
-                            // }   //N
-
-                            // if (((k - 1) >= 0) && ((k - 1) < 8) && ((j + 1) >= 0) && ((j + 1) < 8) && (field[k - 1][j + 1] > 9))
-                            // {
-                            //     field[k - 1][j + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j + 1, field[k - 1][j + 1] + 10, field[k - 1][j + 1]);
-                            // }   //NE
-
-                            // if (((j + 1) >= 0) && ((j + 1) < 8) && (field[k][j + 1] > 9))
-                            // {
-                            //     field[k][j + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k, j + 1, field[k][j + 1] + 10, field[k][j + 1]);
-                            // }   //E
-
-                            // if (((k + 1) >= 0) && ((k + 1) < 8) && ((j + 1) >= 0) && ((j + 1) < 8) && (field[k + 1][j + 1] > 9))
-                            // {
-                            //     field[k + 1][j + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j + 1, field[k + 1][j + 1] + 10, field[k + 1][j + 1]);
-                            // }   //SE
-
-                            // if (((k + 1) >= 0) && ((k + 1) < 8) && (field[k + 1][j] > 9))
-                            // {
-                            //     field[k + 1][j] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j, field[k + 1][j] + 10, field[k + 1][j]);
-                            // }   //S
-
-                            // if (((k + 1) >= 0) && ((k + 1) < 8) && ((j - 1) >= 0) && ((j - 1) < 8) && (field[k + 1][j - 1] > 9))
-                            // {
-                            //     field[k + 1][j - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k + 1, j - 1, field[k + 1][j - 1] + 10, field[k + 1][j - 1]);
-                            // }   //SW
-
-                            // if (((j - 1) >= 0) && ((j - 1) < 8) && (field[k][j - 1] > 9))
-                            // {
-                            //     field[k][j - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k , j - 1, field[k][j - 1] + 10, field[k][j - 1]);
-                            // }   //W
-
-                            // if (((k - 1) >= 0) && ((k - 1) < 8) && ((j - 1) >= 0) && ((j - 1) < 8) && (field[k - 1][j - 1] > 9))
-                            // {
-                            //     field[k - 1][j - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", k - 1, j - 1, field[k - 1][j - 1] + 10, field[k - 1][j - 1]);
-                            // }   //NW
+                            discloseblock_kj(0, -1); //N
+                            discloseblock_kj(1, -1); //NE
+                            discloseblock_kj(1, 0); //E
+                            discloseblock_kj(1, 1); //SE
+                            discloseblock_kj(0, 1); //S
+                            discloseblock_kj(-1, 1); //SW
+                            discloseblock_kj(-1, 0); //W
+                            discloseblock_kj(-1, -1); //NW
                         }
 
-                        if ((field[i][k] % 10 == 9) && (field[i][k] / 10 == 0))
+                        if (field[i][k] == 9)
                         {
                             field[i][k] = 0;
                             if (DEBUG) printf("\e[01;38;05;196mE\e[0mxplode...  %d %d [@]\n", i, k);
 
-                            discloseblock_ik(-1,0); //N
-                            discloseblock_ik(-1,1); //NE
-                            discloseblock_ik(0,1);  //E
-                            discloseblock_ik(1,1);  //SE
-                            discloseblock_ik(1,0);  //S
-                            discloseblock_ik(1,-1); //SW
-                            discloseblock_ik(0,-1); //W
-                            discloseblock_ik(-1,-1);//NW
-
-                            // if (((i - 1) >= 0) && ((i - 1) < 8) && (field[i - 1][k] > 9))
-                            // {
-                            //     field[i - 1][k] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k, field[i - 1][k] + 10, field[i - 1][k]);
-                            // }   //N
-
-                            // if (((i - 1) >= 0) && ((i - 1) < 8) && ((k + 1) >= 0) && ((k + 1) < 8) && (field[i - 1][k + 1] > 9))
-                            // {
-                            //     field[i - 1][k + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k + 1, field[i - 1][k + 1] + 10, field[i - 1][k + 1]);
-                            // }   //NE
-
-                            // if (((k + 1) >= 0) && ((k + 1) < 8) && (field[i][k + 1] > 9))
-                            // {
-                            //     field[i][k + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i, k + 1, field[i][k + 1] + 10, field[i][k + 1]);
-                            // }   //E
-
-                            // if (((i + 1) >= 0) && ((i + 1) < 8) && ((k + 1) >= 0) && ((k + 1) < 8) && (field[i + 1][k + 1] > 9))
-                            // {
-                            //     field[i + 1][k + 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k + 1, field[i + 1][k + 1] + 10, field[i + 1][k + 1]);
-                            // }   //SE
-
-                            // if (((i + 1) >= 0) && ((i + 1) < 8) && (field[i + 1][k] > 9))
-                            // {
-                            //     field[i + 1][k] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k, field[i + 1][k] + 10, field[i + 1][k]);
-                            // }   //S
-
-                            // if (((i + 1) >= 0) && ((i + 1) < 8) && ((k - 1) >= 0) && ((k - 1) < 8) && (field[i + 1][k - 1] > 9))
-                            // {
-                            //     field[i + 1][k - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i + 1, k - 1, field[i + 1][k - 1] + 10, field[i + 1][k - 1]);
-                            // }   //SW
-
-                            // if (((k - 1) >= 0) && ((k - 1) < 8) && (field[i][k - 1] > 9))
-                            // {
-                            //     field[i][k - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i , k - 1, field[i][k - 1] + 10, field[i ][k - 1]);
-                            // }   //W
-
-                            // if (((i - 1) >= 0) && ((i - 1) < 8) && ((k - 1) >= 0) && ((k - 1) < 8) && (field[i - 1][k - 1] > 9))
-                            // {
-                            //     field[i - 1][k - 1] -= 10;
-                            //     printf("Bomb disclose score: +%d\n", 50);
-                            //     score += 50;
-                            //     if (DEBUG) printf("\e[01;38;05;196mD\e[0misclose... %d%d : %d > %d\n", i - 1, k - 1, field[i - 1][k - 1] + 10, field[i - 1][k - 1]);
-                            // }   //NW
+                            discloseblock_ik(-1, 0); //N
+                            discloseblock_ik(-1, 1); //NE
+                            discloseblock_ik(0, 1); //E
+                            discloseblock_ik(1, 1); //SE
+                            discloseblock_ik(1, 0); //S
+                            discloseblock_ik(1, -1); //SW
+                            discloseblock_ik(0, -1); //W
+                            discloseblock_ik(-1, -1); //NW
                         }
                     }
                 }
@@ -522,9 +414,8 @@ int destroy()   //calls check() if destroys a block
     return 0;
 }
 
-int startscreen()   //doesn't call any other functions
+void startscreen()   //doesn't call any other functions
 {
-    if (DEBUG) printf("\n*2-4-6-8*1*2-4-6-8*2*2-4-6-8*3*2-4-6-8*4*2-4-6-8*5*2-4-6-8*6*2-4-6-8*7*2-4-6-8*8*2-4-6-8*9\n\n");
     printf(
         "  **                                                               **   \n"
         "  *                          Eighty  Eight                          *   \n"
@@ -547,9 +438,9 @@ int startscreen()   //doesn't call any other functions
         "\e[01;38;05;107m     v  Use --debug, --seed=SEED, --chains arguments.\n"
         "\e[01;38;05;107m     v  To exit input any letter.\n"
         "\n\n"
-        "\e[01;38;05;222m             Enjoy!\e[0m\n\n");
+        "\e[01;38;05;222m             Enjoy!\e[0m\n\n"
+    );
     getchar();
-    return 0;
 }
 
 void revealblock(int _di, int _dj)
