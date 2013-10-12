@@ -6,7 +6,7 @@
 #include "color_con.h"
 
 #define NLevel 20
-#define Version 23  //numbers of commits in repo
+#define Version 24  //numbers of commits in repo
 //win version
 
 int i, j, k;
@@ -198,7 +198,7 @@ int print() //doesn't call any other functions
                 case 1: settxt(11); printf("[1]"); clrclr(); break;
                 case 2: settxt(6); printf("[2]"); clrclr(); break;
                 case 3: settxt(10); printf("[3]"); clrclr(); break;
-                case 4: settxt(5); printf("[4]"); clrclr(); break;
+                case 4: settxt(4); printf("[4]"); clrclr(); break;
                 case 5: settxt(12); printf("[5]"); clrclr(); break;
                 case 6: settxt(14); printf("[6]"); clrclr(); break;
                 case 7: settxt(13); printf("[7]"); clrclr(); break;
@@ -228,7 +228,7 @@ int print() //doesn't call any other functions
                 case 1: settxt(11); printf("[1]"); clrclr(); break;
                 case 2: settxt(6); printf("[2]"); clrclr(); break;
                 case 3: settxt(10); printf("[3]"); clrclr(); break;
-                case 4: settxt(5); printf("[4]"); clrclr(); break;
+                case 4: settxt(4); printf("[4]"); clrclr(); break;
                 case 5: settxt(12); printf("[5]"); clrclr(); break;
                 case 6: settxt(14); printf("[6]"); clrclr(); break;
                 case 7: settxt(13); printf("[7]"); clrclr(); break;

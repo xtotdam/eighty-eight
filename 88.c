@@ -4,7 +4,7 @@
 #include "string.h"
 
 #define NLevel 20
-#define Version 23  //numbers of commits in repo
+#define Version 24  //numbers of commits in repo
 
 int i, j, k;
 int field[8][8] = {0};
@@ -430,7 +430,7 @@ void startscreen()   //doesn't call any other functions
         "         the same row/column.\n"
         "\e[01;38;05;107m     v  When block disappears, block above will drop.\n"
         "\e[01;38;05;107m     v  New level is reached, when indicator below is full.\n"
-        "\e[01;38;05;242m     x  When any block is pushed out of the grid,\n"
+        "\e[01;38;05;107m     v  When any block is pushed out of the grid,\n"
         "         game is over.\n\e[0m"
         "\n"
         "  Instructions:\n"
