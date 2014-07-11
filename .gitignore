@@ -1,5 +1,3 @@
-88
-test/ta
-test/tnb
-test/ts
-*.exe
+*.pyc
+.idea/
+test_*
