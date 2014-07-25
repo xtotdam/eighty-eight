@@ -31,10 +31,10 @@ while not gf.gameover:
         if gf.highestchain < gf.chains:
             gf.highestchain = gf.chains
         gf.chains = 1
+    gf.output()
     try:
         gf.placenew()
     except (EOFError, KeyboardInterrupt):
         gf.gameover = True
     gf.fall()
-    gf.output()
 gf.gameoverscreen()

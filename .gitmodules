@@ -1,0 +1,3 @@
+[submodule "pyColorprint"]
+	path = pyColorprint
+	url = https://github.com/xtotdam/pyColorprint.git

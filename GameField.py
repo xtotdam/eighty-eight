@@ -3,7 +3,7 @@ from __future__ import print_function
 __author__ = 'xtotdam'
 
 import numpy as np
-from clrprint import clrprintnum as cpn
+from pyColorprint.clrprint import color_print_num as cpn
 
 
 def nextblock():
@@ -128,11 +128,11 @@ Print debug information about gamefield
 
                 for value in self.checks[0][i]:
                     print(color_block(value), end='')
-                print(' ', end='')
+                print('#', end='')
 
                 for value in self.checks[1][i]:
                     print(color_block(value), end='')
-                print(' ', end='')
+                print('#', end='')
 
                 for value in self.checks[2][i]:
                     print(color_block(value), end='')
@@ -274,12 +274,14 @@ Reveals blocks after destroys nearby. Uses magic arrays got from np.indices((3,3
         indices = set(indices)
         for i, j in indices:
             try:
+                prev = self.field[i][j]
                 if self.field[i][j] / 10:
                     self.field[i][j] -= 10
                 if self.field[i][j] == 19:
                     self.field[i][j] = 9  # because there are no shadowed bombs
-                self.score += 100
-                print('100 points for block revealing')
+                if prev != self.field[i][j]:
+                    self.score += 100
+                    print('100 points for block revealing')
             except IndexError:
                 pass
         if self.debug:
